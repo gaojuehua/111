@@ -4,12 +4,18 @@ server:
 
 spring:
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${ip}:3306/honey2024?useSSl=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2b8
+    driver-class-name: com.p6spy.engine.spy.P6SpyDriver
+    url: jdbc:p6spy:mysql://localhost:3306/honey2024?useSSl=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2b8
     username: root
-    password: 123456
+    password: 1234
   servlet:
    multipart:
      max-file-size: 20MB
      max-request-size: 20MB
-ip: localhost
+logging:
+  level:
+    com.baomidou.mybatisplus: DEBUG
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
