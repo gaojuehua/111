@@ -5,39 +5,39 @@
 <mapper namespace="com.example.springboot.mapper.InpantientMapper">
 
     <select id="getCountByTimeRange" resultType="com.example.springboot.controller.ILKPO">
-        -- DATE_FORMAT(createtime,'%Y-%m-%d')  把datetime类型的数据格式化成  yyyy-MM-dd
-        select count(id) as count, DATE_FORMAT(createtime,'%Y-%m-%d') as date from
-        <if test="type == 1||2">
-            inpantient
+        select count(id) as count, DATE_FORMAT(time,'%Y-%m-%d') as date from inpantient
+        where 1=1
+        <if test="type == 1">
+            and ilk = '遗传性'
         </if>
-<!--        <if test="type == 2">-->
-<!--            xijun-->
-<!--        </if>-->
-<!--        <if test="type == 3">-->
-<!--            bingdu-->
-<!--        </if>-->
-<!--        <if test="type == 4">-->
-<!--            hanjian-->
-<!--        </if>-->
-<!--        <if test="type == 5">-->
-<!--            jijie-->
-<!--        </if>-->
-        where
+        <if test="type == 2">
+            and ilk = '细菌性'
+        </if>
+        <if test="type == 3">
+            and ilk = '病毒性'
+        </if>
+        <if test="type == 4">
+            and ilk = '罕见性'
+        </if>
+        <if test="type == 5">
+            and ilk = '季节性'
+        </if>
+
         <choose>
             <when test="timeRange == 'week'">
-                createtime >=  DATE_SUB(NOW(),INTERVAL 1 WEEK)   --  DATE_SUB  就是数据库进行时间计算的函数
+                and time >= DATE_SUB(NOW(),INTERVAL 1 WEEK)
             </when>
             <when test="timeRange == 'month'">
-                createtime >=  DATE_SUB(NOW(),INTERVAL 1 MONTH)
+                and time >= DATE_SUB(NOW(),INTERVAL 1 MONTH)
             </when>
             <when test="timeRange == 'month2'">
-                createtime >=  DATE_SUB(NOW(),INTERVAL 2 MONTH)
+                and time >= DATE_SUB(NOW(),INTERVAL 2 MONTH)
             </when>
             <when test="timeRange == 'month3'">
-                createtime >=  DATE_SUB(NOW(),INTERVAL 3 MONTH)
+                and time >= DATE_SUB(NOW(),INTERVAL 3 MONTH)
             </when>
             <otherwise>
-                createtime > now()
+                and time > now()
             </otherwise>
         </choose>
         group by date

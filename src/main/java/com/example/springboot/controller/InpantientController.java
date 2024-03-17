@@ -143,7 +143,7 @@ public class InpantientController {
     // timeRange: week month month2 month3
 
     @GetMapping("/lineCharts/{timeRange}")
-    public Result lineCharts(@PathVariable String timeRange){
+    public Result lineCharts(@PathVariable String timeRange) throws Exception {
         return Result.success(inpantientService.getCountByTimeRange(timeRange));
     }
 

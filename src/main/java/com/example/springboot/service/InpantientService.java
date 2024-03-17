@@ -4,11 +4,13 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.springboot.controller.ILKPO;
 import com.example.springboot.entity.Inpantient;
 import com.example.springboot.entity.Orders;
 import com.example.springboot.mapper.InpantientMapper;
+import com.example.springboot.utils.Tools;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,19 +25,21 @@ public class InpantientService extends ServiceImpl<InpantientMapper, Inpantient>
 
     @Override
     public List<Inpantient> list() {
-        return inpantientMapper.list();
+        return inpantientMapper.selectList(new QueryWrapper<>());
     }
 
     @Transactional
-    public Map<String, Object> getCountByTimeRange(String timeRange) {
+    public Map<String, Object> getCountByTimeRange(String timeRange) throws Exception {
 
         Map<String, Object> map = new HashMap<>();
         Date today = new Date();
         List<DateTime> dateRange;
         switch (timeRange) {
             case "week":
+
                 // offsetDay 计算时间的一个工具方法
                 // rangeToList 返回从开始时间到结束时间的一个时间范围
+
                 dateRange = DateUtil.rangeToList(DateUtil.offsetDay(today, -6), today, DateField.DAY_OF_WEEK);
                 break;
             case "month":
@@ -51,16 +55,18 @@ public class InpantientService extends ServiceImpl<InpantientMapper, Inpantient>
                 dateRange = new ArrayList<>();
         }
         //  datetimeToDateStr() 就是一个处理的方法， 把 DateTime类型的List转换成一个 String的List
+
         List<String> dateStrRange = datetimeToDateStr(dateRange);
         map.put("date", dateStrRange);  // x轴的日期数据生产完毕
-        //  timeRange = week  month
+
         // getCountByTimeRange 不会统计数据库没有的日期，比如 数据库 11.4 这一天数据没有，他不会返回 date=2022-11-04,count=0 这个数据
-//        OrdersMapper.MyClass myObject = new OrdersMapper.MyClass();
-        List<ILKPO> yichuanCount = inpantientMapper.getCountByTimeRange(timeRange,1);
-        List<ILKPO> xijunCount = inpantientMapper.getCountByTimeRange(timeRange, 2);
-        List<ILKPO> bingduCount = inpantientMapper.getCountByTimeRange(timeRange, 3);
-        List<ILKPO> hanjianCount = inpantientMapper.getCountByTimeRange(timeRange, 4);
-        List<ILKPO> jijieCount = inpantientMapper.getCountByTimeRange(timeRange, 5);
+        // 使用冒泡排序 根据日期字段对数据进行排序
+
+        List<ILKPO> yichuanCount = Tools.bubbleSortOpt(inpantientMapper.getCountByTimeRange(timeRange,1));
+        List<ILKPO> xijunCount = Tools.bubbleSortOpt(inpantientMapper.getCountByTimeRange(timeRange, 2));
+        List<ILKPO> bingduCount = Tools.bubbleSortOpt(inpantientMapper.getCountByTimeRange(timeRange, 3));
+        List<ILKPO> hanjianCount = Tools.bubbleSortOpt(inpantientMapper.getCountByTimeRange(timeRange, 4));
+        List<ILKPO> jijieCount = Tools.bubbleSortOpt(inpantientMapper.getCountByTimeRange(timeRange, 5));
         map.put("yichuan", countList(yichuanCount, dateStrRange));
         map.put("xijun", countList(xijunCount, dateStrRange));
         map.put("bingdu", countList(bingduCount, dateStrRange));
@@ -95,25 +101,6 @@ public class InpantientService extends ServiceImpl<InpantientMapper, Inpantient>
                     .map(ILKPO::getCount).findFirst().orElse(0);
             list.add(count);
         }
-        // 最后返回的list的元素个数会跟 dateRange 的元素个数完全一样
-        // dateRange: [
-        //            "2022-10-30",
-        //            "2022-10-31",
-        //            "2022-11-01",
-        //            "2022-11-02",
-        //            "2022-11-03",
-        //            "2022-11-04",
-        //            "2022-11-05"
-        //        ],
-        // borrow: [
-        //            0,
-        //            0,
-        //            2,
-        //            1,
-        //            0,
-        //            1,
-        //            3
-        //        ]
         return list;
     }
 

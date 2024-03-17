@@ -12,7 +12,6 @@ import java.util.List;
 
 @Mapper
 public interface InpantientMapper extends BaseMapper<Inpantient> {
-    List<Inpantient> list();
 
     List<ILKPO> getCountByTimeRange(@Param("timeRange") String timeRange, @Param("type") int type);
 
